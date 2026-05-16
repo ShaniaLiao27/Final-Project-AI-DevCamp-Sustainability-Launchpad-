@@ -1,570 +1,148 @@
-# Google ADK Multi-Agent on Gemini Enterprise Agent Platform
+# 🌱 Sustainability Launchpad
 
-**Multi-Agent Content Creation design consideration Workshop**
+> From "What is ESG?" to your first sustainability report — in 20 minutes.
+> A global multi-agent AI platform for SME owners and sustainability newcomers.
 
-An intelligent, multi-agent content creation system and comprehensive workshop powered by Google's Gemini models. This project demonstrates how to build AI agents with custom tools using Google's Agent Development Kit (ADK). Throughout the workshop, you will explore various design patterns (Sequential, Parallel, Iterative architectures), navigate agent architecture trade-offs (Sub-agents vs. Agent as a Tool), and master memory & context for reliable agent teams. It also covers implementing callbacks & observability, managing sessions, state, and artifacts, and achieving scalable deployment of a full-stack system (React frontend, FastAPI backend) to **Gemini Enterprise Agent Platform Runtime** (formerly Vertex AI Agent Engine) and Cloud Run on Google Cloud Platform.
+[![Demo Video]
 
-## Workshop Notebooks - Start Here!
 
-**New to AI agents?** Start with our interactive notebooks - no setup required, just click and learn!
+[1-Sustainability Launchpad Demo-Learn Mode.zip](https://github.com/user-attachments/files/27863360/1-Sustainability.Launchpad.Demo-Learn.Mode.zip)
 
-Interactive Jupyter notebooks to learn how to build multi-agent systems step by step. Click the badge to open directly in Google Colab:
-
-| Part | Topic | Description | Colab Link |
-|------|-------|-------------|------------|
-| 1 | First Agent | Create your first AI agent with Google ADK | [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/Saoussen-CH/google-adk-multi-agent-design-consideration-workshop/blob/main/notebooks/part1_first_agent.ipynb) |
-| 2 | Custom Tools | Build custom tools for your agents | [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/Saoussen-CH/google-adk-multi-agent-design-consideration-workshop/blob/main/notebooks/part2_custom_tools.ipynb) |
-| 3 | Agent Teams | Coordinate multiple agents working together | [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/Saoussen-CH/google-adk-multi-agent-design-consideration-workshop/blob/main/notebooks/part3_agent_teams.ipynb) |
-| 4 | Architecture Patterns | LLM-Driven vs Workflow-Driven architectures and design trade-offs | [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/Saoussen-CH/google-adk-multi-agent-design-consideration-workshop/blob/main/notebooks/part4_architecture_patterns.ipynb) |
-| 5 | Sequential Workflows | Sequential pipelines and agent coordination | [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/Saoussen-CH/google-adk-multi-agent-design-consideration-workshop/blob/main/notebooks/part5_sequential_workflows.ipynb) |
-| 6 | Iterative Workflows | Create quality improvement loops | [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/Saoussen-CH/google-adk-multi-agent-design-consideration-workshop/blob/main/notebooks/part6_iterative_workflows.ipynb) |
-| 7 | Parallel Workflows | Execute agents in parallel for efficiency | [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/Saoussen-CH/google-adk-multi-agent-design-consideration-workshop/blob/main/notebooks/part7_parallel_workflows.ipynb) |
-| 8 | Callbacks, Context & Memory | Callbacks, sessions/state, artifacts, and memory, including ADK's LoggingPlugin for local observability | [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/Saoussen-CH/google-adk-multi-agent-design-consideration-workshop/blob/main/notebooks/part8_callbacks_context_memory.ipynb) |
-| 9 | Capstone Project | Build the complete Content Creation Studio | [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/Saoussen-CH/google-adk-multi-agent-design-consideration-workshop/blob/main/notebooks/part9_capstone_project.ipynb) |
-| 10 | Deployment | Deploy agents to Agent Platform Runtime on GCP | [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/Saoussen-CH/google-adk-multi-agent-design-consideration-workshop/blob/main/notebooks/part10_deployment_agent_engine.ipynb) |
-| 11 | Full-Stack Cloud Run | Deploy full-stack app (React + FastAPI) to Cloud Run | [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/Saoussen-CH/google-adk-multi-agent-design-consideration-workshop/blob/main/notebooks/part11_fullstack_cloud_run.ipynb) |
-
-### Workshop Learning Path
-
-1. **Part 1-2**: Foundations - Learn basic agent creation and custom tools
-2. **Part 3-4**: Agent Teams & Architecture Patterns - Coordinate agents and explore design trade-offs
-3. **Part 5-7**: Workflows - Master sequential, iterative, and parallel agent workflows
-4. **Part 8**: Callbacks, Context & Memory - Callbacks, sessions/state, artifacts, and long-term memory
-5. **Part 9**: Capstone Project - Build the complete Content Creation Studio
-6. **Part 10**: Deployment - Deploy to Agent Platform Runtime on GCP
-7. **Part 11**: Full-Stack Cloud Run - Deploy the full-stack app (React + FastAPI + Agent Platform Runtime) to Cloud Run
-
-**Tip**: Each notebook is self-contained and can be run independently in Google Colab. No local setup required!
+👉 **Live Demo**: (https://content-studio-25xwmvjuzq-uc.a.run.app/)
 
 ---
 
-## Workshop: Google ADK & Gemini Enterprise Agent Platform: Multi-Agent System Design
+## 🎯 What it does
 
-What we will cover:
+Two modes, one mission:
 
-- **Build AI Agents**: Create agents with custom tools.                                                                                           
-- **Design Patterns**: Choosing between LLM-Driven and Workflow-Driven architectures (Sequential, Parallel, Iterative).                           
-- **Agent Architecture**: Navigating the trade-offs between Sub-agents and Agent as a Tool.                                                           
-- **Callbacks & Observability**: Implementing custom logging, guardrails, and metrics with callbacks, and utilizing ADK's built-in LoggingPlugin for comprehensive local debugging.                                                                                                                  
-- **Management**: How to handle sessions, state, and artifacts within an integrated AI orchestration layer.                                       
-- **Memory & Context**: Mastering Short-Term vs. Long-Term memory for reliable agent teams.                                                       
-- **Scalable Deployment**: Deploying your full-stack Multi-Agent System to GCP environments.    
+- **🎓 Learn Mode** — Plain-language explanations of ESG, SDG, Net Zero, Scope 1-3, with SME case studies and 3-question quizzes
+- **✍️ Generate Mode** — Drafts a one-page bilingual sustainability statement for your company, mapped to UN SDGs
+
+Works in **English, 繁體中文, 日本語, Español** — agents auto-detect your input language.
 
 ---
 
-## Quick Start & Deployment
+## 🖼 Screenshots
 
-**New to this project?** Check out [**GETTING_STARTED.md**](GETTING_STARTED.md) for complete step-by-step instructions with 4 test prompts!
-
+| Homepage | Learn Mode | Generate Mode |
+| --- | --- | --- |
+| ![](docs/screenshots/01-homepage.png) | ![](docs/screenshots/02-learn-mode.png) | ![](docs/screenshots/04-generate-mode.png) |
 
 ---
 
-## Prerequisites
+## 🏗 Architecture
 
-### Required Software
-1. **Python 3.11.13** - For backend (via [pyenv](#python-version-management) recommended)
-2. **Node.js 18+** - For frontend ([Download](https://nodejs.org/))
-3. **Google API Key** - Get from [Google AI Studio](https://aistudio.google.com/app/apikey)
-4. **pyenv** (optional) - Python version manager
+![Architecture](docs/screenshots/05-architecture.png)
 
-### For Cloud Deployment
-5. **Google Cloud Project** with billing enabled
-6. **gcloud CLI** - [Install guide](https://cloud.google.com/sdk/docs/install)
+**7 ADK Agents** orchestrated by a master router:
 
+- **Learn**: ConceptExplainer · SMECaseStudy · QuizGrader
+- **Generate**: MaterialityAdvisor · ContentDrafter · SDGMapper
+- **Shared**: FactChecker (grounds claims in UN, GRI, IFRS, GHG Protocol)
 
-### Python Version Management
+---
 
-This project requires Python 3.11.13. We recommend [pyenv](https://github.com/pyenv/pyenv) for version management.
+## 🛠 Tech Stack
+
+| Layer | Tech |
+| --- | --- |
+| Agents | Google ADK + Gemini 2.5 Flash |
+| Backend | FastAPI + Uvicorn (Python 3.11) |
+| Frontend | React 18 + Vite |
+| Deploy | Cloud Run + Gemini Enterprise Agent Engine |
+| Tools | google_search (web grounding) |
+
+---
+
+## 🚀 Run Locally
 
 ```bash
-# Install pyenv
-curl https://pyenv.run | bash
+git clone https://github.com/ShaniaLiao27/Assignment-Session-4-Full-Stack-Multi-Agent-App-with-Google-ADK-Gemini-Enterprise-Agent-Platform.git
+cd Assignment-Session-4-...
 
-# Add to your shell profile (~/.bashrc or ~/.zshrc)
-export PATH="$HOME/.pyenv/bin:$PATH"
-eval "$(pyenv init -)"
-
-# Install and activate Python 3.11.13
-pyenv install 3.11.13
-pyenv local 3.11.13
-python --version  # Should show: Python 3.11.13
-```
-
-The project includes a `.python-version` file that automatically activates the correct version.
-
----
-
-## Features
-
-### Two Main Capabilities:
-
-1. **Create Content** - Full multi-agent content package generation
-   - Blog posts (800-1200 words)
-   - Social media content (LinkedIn, Twitter, Instagram)
-   - Email newsletters
-   - SEO metadata
-
-2. **Analyze Text** - Text analysis using AI
-   - Word count
-   - Readability score
-   - Hashtag generation
-
-## Architecture
-
-> **Mermaid Diagrams**:
-> - [Architecture Diagram](diagrams/architecture.mmd) - Complete system architecture
-> - [Multi-Agent System Diagram](diagrams/multi-agent-system.mmd) - Agent workflow and interactions
-
-### System Overview
-
-```mermaid
-graph TB
-    subgraph "User Interface"
-        Browser[Web Browser]
-    end
-
-    subgraph "Google Cloud Run"
-        subgraph "Combined Service (Port 8080)"
-            Frontend[React Frontend<br/>Static Files<br/>Vite + React 18]
-            Backend[FastAPI Backend<br/>API Server<br/>Python 3.11 + Uvicorn]
-            Frontend -.served by.-> Backend
-        end
-    end
-
-    subgraph "Google Cloud Platform"
-        subgraph "Agent Platform Runtime"
-            Orchestrator[Master Orchestrator<br/>Agent<br/>gemini-2.5-flash]
-            Coordinator[Content Creation<br/>Coordinator<br/>gemini-2.5-flash]
-            Analyzer[Content Analyzer<br/>Agent<br/>gemini-2.5-flash]
-
-            Orchestrator --> Coordinator
-            Orchestrator --> Analyzer
-        end
-
-        subgraph "Infrastructure"
-            AR[Artifact Registry<br/>Docker Images]
-            Storage[Cloud Storage<br/>Staging Bucket]
-            Logging[Cloud Logging<br/>& Monitoring]
-        end
-    end
-
-    subgraph "AI Models"
-        Gemini[Google Gemini 2.5 Flash<br/>via Vertex AI]
-    end
-
-    Browser -->|HTTPS| Frontend
-    Frontend -->|/api/*| Backend
-    Backend -->|RemoteRunner| Orchestrator
-    Coordinator -->|API Calls| Gemini
-    Analyzer -->|API Calls| Gemini
-
-    Backend -.logs.-> Logging
-    AR -.deploys.-> Backend
-    Coordinator -.stores.-> Storage
-
-    classDef frontend fill:#61dafb,stroke:#333,color:#000
-    classDef backend fill:#009688,stroke:#333,color:#fff
-    classDef agent fill:#ff6f00,stroke:#333,color:#fff
-    classDef infra fill:#4285f4,stroke:#333,color:#fff
-    classDef ai fill:#ea4335,stroke:#333,color:#fff
-
-    class Browser,Frontend frontend
-    class Backend backend
-    class Orchestrator,Coordinator,Analyzer agent
-    class AR,Storage,Logging infra
-    class Gemini ai
-```
-
-### Multi-Agent System
-
-```mermaid
-graph TB
-    Start([User Request]) --> Orchestrator[Master Orchestrator<br/>gemini-2.5-flash<br/>+ Callbacks + Memory]
-
-    Orchestrator -->|"content creation"| FullWorkflow[Full Content Workflow<br/>SequentialAgent]
-    Orchestrator -->|"text analysis"| Analyzer[Content Analyzer<br/>gemini-2.5-flash]
-
-    subgraph "Phase 1: Research & Draft (Sequential)"
-        FullWorkflow --> Research[Topic Research Agent<br/>google_search<br/>output_key: blog_topic]
-        Research --> Drafter[Content Drafter Agent<br/>reads: blog_topic<br/>output_key: current_content]
-    end
-
-    subgraph "Phase 2: Quality Loop (max 2 iterations)"
-        Drafter --> Quality{Quality Checker<br/>Score >= 70?}
-        Quality -->|No| Improver[Content Improver<br/>Refine Content]
-        Improver --> Quality
-        Quality -->|Yes, exit_loop| Approved[Approved Content]
-    end
-
-    subgraph "Phase 3: Multi-Channel Generation (Parallel)"
-        Approved --> Blog[Blog Post Writer<br/>800-1200 words<br/>output_key: final_blog_post]
-        Approved --> Social[Social Media Creator<br/>LinkedIn, Twitter, Instagram<br/>output_key: social_media_posts]
-        Approved --> Email[Email Newsletter Writer<br/>Subject + Body + CTA<br/>output_key: email_newsletter]
-        Approved --> SEO[SEO Metadata Agent<br/>Meta tags & keywords<br/>output_key: seo_metadata]
-    end
-
-    Blog --> Result([Complete Content Package<br/>All outputs in session state])
-    Social --> Result
-    Email --> Result
-    SEO --> Result
-
-    Analyzer --> AnalysisResult([Analysis Report<br/>Word count + Readability + Hashtags])
-
-    classDef orchestrator fill:#9c27b0,stroke:#333,stroke-width:3px,color:#fff
-    classDef workflow fill:#ff6f00,stroke:#333,stroke-width:2px,color:#fff
-    classDef phase1 fill:#e3f2fd,stroke:#1976d2,stroke-width:2px
-    classDef phase2 fill:#fff3e0,stroke:#f57c00,stroke-width:2px
-    classDef phase3 fill:#e8f5e9,stroke:#388e3c,stroke-width:2px
-    classDef analyzer fill:#f3e5f5,stroke:#7b1fa2,stroke-width:2px
-    classDef endpoint fill:#ffd700,stroke:#333,stroke-width:3px,color:#000
-
-    class Orchestrator orchestrator
-    class FullWorkflow workflow
-    class Research,Drafter phase1
-    class Quality,Improver,Approved phase2
-    class Blog,Social,Email,SEO phase3
-    class Analyzer analyzer
-    class Start,Result,AnalysisResult endpoint
-```
-
-### Agent Responsibilities
-
-| Agent | Type | Responsibility |
-|-------|------|----------------|
-| **Master Orchestrator** | LLM Agent | Routes requests to content workflow or analyzer |
-| **Full Content Workflow** | SequentialAgent | Orchestrates the 3-phase content pipeline |
-| **Research & Draft** | SequentialAgent | Runs topic research then content drafting in order |
-| **Quality Improvement Loop** | LoopAgent | Checks quality and improves until score >= 70 (max 2 iterations) |
-| **Parallel Content Creation** | ParallelAgent | Runs blog, social, email, and SEO agents concurrently |
-| **Topic Research Agent** | LLM Agent | Identifies trending topics via google_search |
-| **Content Drafter Agent** | LLM Agent | Creates initial content drafts |
-| **Quality Checker Agent** | LLM Agent | Evaluates content quality (score 0-100) |
-| **Content Improver Agent** | LLM Agent | Refines content based on feedback |
-| **Blog Post Writer** | LLM Agent | Generates SEO-optimized blog posts (800-1200 words) |
-| **Social Media Creator** | LLM Agent | Creates platform-specific social content |
-| **Email Newsletter Writer** | LLM Agent | Writes engaging email newsletters |
-| **SEO Metadata Agent** | LLM Agent | Generates meta descriptions and keywords |
-| **Content Analyzer Agent** | LLM Agent | Analyzes text (readability, word count, hashtags) |
-
-
-## Local Development Guide
-
-### Prerequisites for Local Development
-
-Before running locally, ensure you have:
-1. Python 3.11.13 installed (via pyenv recommended)
-2. Node.js 18+ installed
-3. Google API Key from [Google AI Studio](https://aistudio.google.com/app/apikey)
-4. Agent deployed to Agent Platform Runtime (see [Deploy Agent](#deploy-agent-to-agent-engine))
-
-### Option 1: Local Agent (No Agent Platform Runtime Required)
-
-Run the agent entirely on your local machine without deploying to Agent Platform Runtime.
-
-**Step 1: Install Dependencies**
-```bash
-# Ensure Python 3.11.13 is active
-python --version  # Should show 3.11.13
-
-# Install Python dependencies
+# Backend
+python3.11 -m venv .venv && source .venv/bin/activate
 pip install -r requirements.txt
+cp .env.example .env  # fill in GOOGLE_CLOUD_PROJECT
 
-# Install frontend dependencies (optional)
-cd frontend
-npm install
-cd ..
-```
-
-**Step 2: Configure Environment**
-```bash
-# Create .env file
-cat > .env << 'EOF'
-# Google API Configuration
-GOOGLE_API_KEY=your_google_api_key_here
-GOOGLE_GENAI_USE_VERTEXAI=0
-
-# Agent Configuration
-WORKER_MODEL=gemini-2.0-flash-exp
-COORDINATOR_MODEL=gemini-2.0-flash-exp
-QUALITY_SCORE_THRESHOLD=70
-MAX_IMPROVEMENT_ITERATIONS=3
-EOF
-```
-
----
-
-### Option 2: Local Backend + Agent Platform Runtime
-
-Connect your local backend to a deployed Agent Platform Runtime instance.
-
-**Step 1: Deploy Agent to Agent Platform Runtime**
-```bash
-# Deploy agent (one time)
-python deployment/deploy.py --action deploy
-
-# Copy the AGENT_ENGINE_RESOURCE_NAME from output
-```
-
-**Step 2: Configure Environment**
-```bash
-# Create .env file with Agent Platform Runtime resource
-cat > .env << 'EOF'
-# Google Cloud Configuration
-GOOGLE_CLOUD_PROJECT=your-project-id
-GOOGLE_CLOUD_LOCATION=us-central1
-GOOGLE_API_KEY=your_google_api_key_here
-GOOGLE_GENAI_USE_VERTEXAI=1
-
-# Agent Platform Runtime resource (env var name kept for compatibility)
-AGENT_ENGINE_RESOURCE_NAME=projects/.../locations/.../reasoningEngines/...
-
-# Agent Configuration
-WORKER_MODEL=gemini-2.0-flash-exp
-COORDINATOR_MODEL=gemini-2.0-flash-exp
-EOF
-```
-
-**Step 3: Run Backend Server**
-```bash
-# Start FastAPI backend
-cd backend
-python api_server.py
-```
-
-**Step 4: Run Frontend (Optional)**
-
-Open a new terminal:
-```bash
-cd frontend
-npm run dev
-```
-
-**Step 5: Access Application**
-- Frontend UI: http://localhost:5173
-- Backend API: http://localhost:8000
-- API Docs: http://localhost:8000/docs
-
----
-
-### Option 3: Full Local Stack (Backend + Frontend + Local Agent)
-
-**Step 1: Install All Dependencies**
-```bash
-# Python dependencies
-pip install -r requirements.txt
-
-# Frontend dependencies
+# Frontend
 cd frontend && npm install && cd ..
-```
 
-**Step 2: Configure for Local Development**
-```bash
-# .env file (no Agent Platform Runtime required)
-cat > .env << 'EOF'
-GOOGLE_API_KEY=your_google_api_key_here
-GOOGLE_GENAI_USE_VERTEXAI=0
-WORKER_MODEL=gemini-2.0-flash-exp
-COORDINATOR_MODEL=gemini-2.0-flash-exp
-EOF
-```
+# Run with ADK web UI
+adk web
 
-**Step 3: Start Backend (Terminal 1)**
-```bash
-cd backend
-python api_server.py
-```
-
-**Step 4: Start Frontend (Terminal 2)**
-```bash
-cd frontend
-npm run dev
-```
-
-**Step 5: Open Browser**
-Navigate to http://localhost:5173
-
----
-
-### Local Development Tips
-
-#### Hot Reload
-- **Backend:** Uvicorn auto-reloads on Python file changes
-- **Frontend:** Vite hot-reloads on React file changes
-
-#### Common Local Issues
-
-**Issue: "AGENT_ENGINE_RESOURCE_NAME not set"**
-```bash
-# Option 1: Deploy agent to Agent Platform Runtime
-python deployment/deploy.py --action deploy
-
-# Option 2: Run locally without Agent Platform Runtime
-# Set GOOGLE_GENAI_USE_VERTEXAI=0 in .env
-```
-
-**Issue: "Module not found"**
-```bash
-# Reinstall dependencies
-pip install -r requirements.txt --force-reinstall
-
-# For frontend
-cd frontend && npm install
-```
-
-**Issue: Port already in use**
-```bash
-lsof -ti:8000 | xargs kill -9  # Backend
-lsof -ti:5173 | xargs kill -9  # Frontend
+# Or run full-stack
+uvicorn api_server:app --reload --port 8000   # terminal 1
+cd frontend && npm run dev                    # terminal 2
 ```
 
 ---
 
-## Project Structure
+## 📚 Data Sources
 
-```
-content_creation_mas/
-├── notebooks/                 # Workshop notebooks (Parts 1-11)
-│   ├── part1_first_agent.ipynb
-│   ├── part2_custom_tools.ipynb
-│   ├── part3_agent_teams.ipynb
-│   ├── part4_architecture_patterns.ipynb
-│   ├── part5_sequential_workflows.ipynb
-│   ├── part6_iterative_workflows.ipynb
-│   ├── part7_parallel_workflows.ipynb
-│   ├── part8_callbacks_context_memory.ipynb
-│   ├── part9_capstone_project.ipynb
-│   ├── part10_deployment_agent_engine.ipynb
-│   └── part11_fullstack_cloud_run.ipynb
-├── backend/                   # FastAPI backend (Cloud Run)
-│   ├── api_server.py         # API server that connects to Agent Platform Runtime
-│   └── requirements.txt
-├── frontend/                  # React UI (Cloud Run)
-│   ├── src/
-│   │   ├── components/
-│   │   │   ├── ContentForm.jsx
-│   │   │   ├── ContentDisplay.jsx
-│   │   │   ├── ProgressIndicator.jsx
-│   │   │   └── TextAnalyzer.jsx
-│   │   ├── styles/
-│   │   ├── App.jsx
-│   │   └── main.jsx
-│   └── package.json
-├── content_creation_studio/   # Multi-agent system (Agent Platform Runtime)
-│   ├── agent.py              # Root agent orchestrator
-│   ├── tools.py              # Agent tools
-│   └── sub_agents/           # Specialized agents
-│       ├── topic_research_agent/
-│       ├── content_drafter_agent/
-│       ├── quality_checker_agent/
-│       ├── content_improver_agent/
-│       ├── blog_post_writer_agent/
-│       ├── social_media_creator_agent/
-│       ├── email_newsletter_writer_agent/
-│       ├── seo_metadata_agent/
-│       └── content_analyzer_agent/
-├── deployment/                # Deployment scripts
-│   ├── deploy.py             # Deploy agent to Agent Platform Runtime
-│   ├── deploy-combined.sh    # Deploy frontend/backend to Cloud Run
-│   └── cleanup.py            # Cleanup deployed resources
-├── api_server.py             # Legacy local server
-└── .env                      # Environment configuration
-```
-
-## Environment Variables
-
-| Variable | Required | Default | Description |
-|----------|----------|---------|-------------|
-| `GOOGLE_API_KEY` | Yes | - | Your Google AI API key |
-| `GOOGLE_CLOUD_PROJECT` | Yes | - | Google Cloud Project ID |
-| `GOOGLE_CLOUD_LOCATION` | No | `us-central1` | GCP region for deployment |
-| `GOOGLE_GENAI_USE_VERTEXAI` | No | `1` | Use Vertex AI (1) or AI Studio (0) |
-| `AGENT_ENGINE_RESOURCE_NAME` | Yes* | - | Agent Platform Runtime resource name (*required for backend; var name kept for compatibility) |
-| `WORKER_MODEL` | No | `gemini-2.5-flash` | Model for worker agents |
-| `COORDINATOR_MODEL` | No | `gemini-2.5-flash` | Model for coordinator |
-| `QUALITY_SCORE_THRESHOLD` | No | `70` | Min quality score |
-| `MAX_IMPROVEMENT_ITERATIONS` | No | `3` | Max improvement loops |
-
-
-## Documentation & Resources
-
-### Architecture & Diagrams
-- **[Architecture Diagram](diagrams/architecture.mmd)** - Complete system architecture (Mermaid format)
-- **[Multi-Agent System Diagram](diagrams/multi-agent-system.mmd)** - Agent workflow and interactions (Mermaid format)
-- **[Diagrams Guide](diagrams/README_DIAGRAMS.md)** - Complete guide to all diagrams
-
-### Deployment Guides
-- **[Deployment Overview](deployment/README.md)** - General deployment instructions
-- **[Setup Guide](deployment/SETUP_GUIDE.md)** - Detailed GCP setup instructions
-
-### Application Documentation
-- **[Frontend README](frontend/README.md)** - React app documentation
-- **[API Docs](http://localhost:8000/docs)** - Interactive API reference (when server running)
-
-### External Resources
-- **[Agent Development Kit (ADK) Documentation](https://docs.cloud.google.com/gemini-enterprise-agent-platform/build/adk)** - Official ADK docs
-- **[Agent Platform Runtime Docs](https://docs.cloud.google.com/gemini-enterprise-agent-platform/build/runtime)** - Managed runtime for ADK agents
-- **[Gemini Enterprise Agent Platform](https://docs.cloud.google.com/gemini-enterprise-agent-platform)** - Platform overview
-## Contributing
-
-This is a workshop project. Feel free to:
-- Fork and experiment with the code
-- Submit issues for bugs or improvements
-- Share your enhanced versions
-
-## License
-
-This workshop is provided as-is for educational purposes.
-#Content Creation Studio-front page
-<img width="1184" height="860" alt="Content Creation Studio-front page" src="https://github.com/user-attachments/assets/e52b93e6-f6f2-4239-bec6-2f8871d405a2" />
-<img width="1136" height="852" alt="prompt" src="https://github.com/user-attachments/assets/7b9e4de7-c786-45d7-864f-5eb30a75bac4" />
-
-#workflow
-<img width="1123" height="469" alt="workflow" src="https://github.com/user-attachments/assets/3b659a7a-f670-41bc-9697-0c177915f98e" />
-
-#generated content
-<img width="677" height="773" alt="generated content" src="https://github.com/user-attachments/assets/8b011b21-373c-4646-9d9b-8eee05fab83e" />
-
-linkedin_post[linkedin_post.md](https://github.com/user-attachments/files/27855866/linkedin_post.md)
-
-Here is your polished LinkedIn post:
-
-What a truly transformative experience at GDG London's AI DevCamp 2026! 🚀
-
-Just a few days ago, my hands-on experience with AI agent development was virtually non-existent. My professional journey has primarily focused on fashion, supply chains, sustainability, and ESG strategies – domains that felt a world away from building intelligent software systems.
-
-Thanks to the phenomenal guidance and immersive workshops at #AIDevCamp2026, I didn't just learn about AI agents – I built and deployed my very first *full-stack multi-agent application*! From conceptualization to live deployment, I navigated #GoogleADK, leveraged #Gemini, orchestrated complex #AgentRuntime processes, and developed the frontend with #React and backend with #FastAPI, all seamlessly hosted on #CloudRun.
-
-This breakthrough is more than a personal milestone; it's a powerful revelation of how #AIagents can revolutionize the sectors I'm passionate about. Imagine multi-agent systems optimizing #supplychain logistics, driving real-time decisions on #sustainablematerials sourcing, or enhancing #ESG reporting with predictive analytics. My background in #sustainability and business strategy now feels amplified by these emerging technical capabilities.
-
-In an era of rapid technological advancement, #continuouslearning isn't just an advantage, it's a necessity. This DevCamp proved that bridging the gap between domain expertise and cutting-edge tech is not only possible but incredibly rewarding.
-
-Excited to explore how these new skills can drive innovation in sustainable business practices!
-
-Grateful for this incredible opportunity.
-
-#AIagents #Sustainability #ContinuousLearning #CareerGrowth #GDGLondon
+All factual claims are grounded in authoritative public sources:
+- UN Sustainable Development Goals — https://sdgs.un.org/goals
+- GRI Standards — https://www.globalreporting.org
+- IFRS S1/S2 Sustainability Standards — https://www.ifrs.org
+- GHG Protocol (Scope 1/2/3) — https://ghgprotocol.org
+- TCFD Recommendations — https://www.fsb-tcfd.org
 
 ---
 
-### Emoji Suggestions
+## 💡 What I Learned
 
-Here are a few options for incorporating emojis professionally:
+- Multi-agent isn't about more agents — it's about clear delegation contracts
+- Gemini 2.5 Flash is fast enough for conversational multi-agent flows
+- Cloud Run cold-start is the silent demo killer (fix: min-instances=1)
+- Grounding LLM outputs in authoritative sources is essential for ESG accuracy
 
-1.  **Option 1: Focused on Launch/Achievement**
-    *   **Emoji:** 🚀 (Rocket)
-    *   **Purpose:** To visually represent the "transformative experience" and the "launch" of her first application, adding an optimistic and forward-looking feel.
-    *   **Placement:** After the opening line, "What a truly transformative experience at GDG London's AI DevCamp 2026! 🚀"
+---
 
-2.  **Option 2: Highlighting Learning & Growth**
-    *   **Emoji:** 🌱 (Seedling) or 💡 (Lightbulb)
-    *   **Purpose:** The seedling emoji represents growth, new beginnings, and cultivation of new skills. The lightbulb symbolizes new ideas and understanding.
-    *   **Placement:** Consider placing 🌱 after "My background in #sustainability and business strategy now feels amplified by these emerging technical capabilities." or 💡 after "This DevCamp proved that bridging the gap between domain expertise and cutting-edge tech is not only possible but incredibly rewarding."
+## 🙏 Acknowledgements
 
-3.  **Option 3: Expressing Gratitude**
-    *   **Emoji:** 🙏 (Folded Hands)
-    *   **Purpose:** To humbly convey appreciation for the learning experience and guidance received.
-    *   **Placement:** At the very end, after "Grateful for this incredible opportunity. 🙏"
+Built on the Multi-Agent Content Creation workshop by **Saoussen Chaabnia** at
+[GDG London AI DevCamp 2026](https://aidevcamp.gdg.london).
+Personalized into the sustainability domain as my Final Project.
 
-For this specific post, the rocket emoji (🚀) has been integrated into the main post to highlight the personal breakthrough and forward momentum, aligning well with the tone and content.
+---
 
+## 📄 License
 
+MIT — fork, modify, build your own sustainability tool for your country.
+
+# Screenshots
+# ADK Web Sample
+<img width="1322" height="901" alt="adk sample" src="https://github.com/user-attachments/assets/ca2e1e01-f2b5-4a09-975e-d78156bd4ab9" />
+
+<img width="1322" height="929" alt="adk web sample 2" src="https://github.com/user-attachments/assets/4daf563d-2b34-415d-b59b-b33b8a55bcb4" />
+
+<img width="1322" height="932" alt="adk web sample 3" src="https://github.com/user-attachments/assets/7d150c10-b15a-4415-89fe-b1a337e2fa4b" />
+
+<img width="1322" height="933" alt="adk web sample 3-1" src="https://github.com/user-attachments/assets/a5bf0d21-c58e-4001-87d7-8526794ef0c9" />
+
+<img width="1322" height="933" alt="adk web sample 4" src="https://github.com/user-attachments/assets/878b3e0e-8bc2-49cf-acd0-6107a1cdb83e" />
+
+<img width="1322" height="927" alt="adk web sample 4-1" src="https://github.com/user-attachments/assets/a0a98bc3-98cf-4f32-8fb0-393df3b73c2c" />
+
+# Web Sample<img width="1134" height="977" alt="web sample 1" src="https://github.com/user-attachments/assets/671d1c86-681a-4731-b679-7503a0cfa27f" />
+
+<img width="1134" height="899" alt="web sample 0" src="https://github.com/user-attachments/assets/399135df-c167-48d4-bec9-ca40bb9d0480" />
+
+<img width="1134" height="895" alt="web sample 0-1" src="https://github.com/user-attachments/assets/aaf46cd4-49db-4681-bcf4-225e6e05c442" />
+
+![Uploading web sample 1.jpg…]()
+
+<img width="1134" height="923" alt="web sample 1-1" src="https://github.com/user-attachments/assets/0e081d72-72f2-42f8-96be-48b1779ce050" />
+
+<img width="1134" height="926" alt="web sample 1-2" src="https://github.com/user-attachments/assets/f4078d9a-9c65-4ad7-af24-220b8d7ef26f" />
+
+<img width="1123" height="828" alt="web sample 2" src="https://github.com/user-attachments/assets/79d82b6c-767a-496c-ba5b-0a76a927fcb2" />
+
+<img width="1123" height="834" alt="web sample 2-1" src="https://github.com/user-attachments/assets/bacb597c-9d6f-4d67-9de5-e437e417f463" />
+
+<img width="910" height="829" alt="web sample 3" src="https://github.com/user-attachments/assets/cc21a392-1334-4656-87a7-9ab4ca74b197" />
+
+<img width="910" height="831" alt="web sample 3-1" src="https://github.com/user-attachments/assets/8ed57406-a6ec-472f-b008-b275b91fc2b9" />
+
+<img width="910" height="832" alt="web sample 3-2" src="https://github.com/user-attachments/assets/976626a0-61cb-49f7-bf66-65f548cc3e1a" />

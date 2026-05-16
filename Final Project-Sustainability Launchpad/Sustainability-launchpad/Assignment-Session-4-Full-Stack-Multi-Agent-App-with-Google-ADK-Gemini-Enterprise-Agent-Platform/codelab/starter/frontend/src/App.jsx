@@ -35,7 +35,7 @@ const ChatInterface = ({ mode, activeLanguage, onBack }) => {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ 
           message: input, 
-          session_id: `session_${mode}`,
+          session_id: `session_${mode}_${window.sessionStorage.getItem('chat_uuid')}`,
           language: activeLanguage
         })
       });
@@ -130,6 +130,13 @@ function App() {
   const [mode, setMode] = useState('home'); // 'home', 'learn', 'generate'
   const [activeLanguage, setActiveLanguage] = useState('EN');
 
+  const handleModeChange = (newMode) => {
+    if (newMode !== 'home') {
+      window.sessionStorage.setItem('chat_uuid', Math.random().toString(36).substring(7));
+    }
+    setMode(newMode);
+  };
+
   const textMap = {
     'EN': {
       title: '🌱 Sustainability Launchpad',
@@ -189,7 +196,7 @@ function App() {
 
           <div style={{ display: 'flex', gap: '2rem', flexWrap: 'wrap', justifyContent: 'center' }}>
             <button 
-              onClick={() => setMode('learn')}
+              onClick={() => handleModeChange('learn')}
               style={{
                 padding: '1rem 2.5rem', fontSize: '1.25rem', fontWeight: '600', backgroundColor: 'var(--primary-color)', color: 'white', border: 'none', borderRadius: '12px', cursor: 'pointer', boxShadow: 'var(--shadow-md)'
               }}
@@ -198,7 +205,7 @@ function App() {
             </button>
 
             <button 
-              onClick={() => setMode('generate')}
+              onClick={() => handleModeChange('generate')}
               style={{
                 padding: '1rem 2.5rem', fontSize: '1.25rem', fontWeight: '600', backgroundColor: 'white', color: 'var(--primary-color)', border: '2px solid var(--primary-color)', borderRadius: '12px', cursor: 'pointer', boxShadow: 'var(--shadow-sm)'
               }}
@@ -224,7 +231,7 @@ function App() {
           <p style={{ margin: 0, opacity: 0.9 }}>{mode === 'learn' ? t.learnBtn : t.generateBtn}</p>
         </div>
         <button 
-          onClick={() => setMode('home')}
+          onClick={() => handleModeChange('home')}
           style={{ padding: '0.5rem 1rem', background: 'rgba(255,255,255,0.2)', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer', fontWeight: 'bold' }}
         >
           ← Back
@@ -232,7 +239,7 @@ function App() {
       </header>
 
       <main style={{ flex: 1, padding: '2rem', maxWidth: '1000px', margin: '0 auto', width: '100%' }}>
-        <ChatInterface mode={mode} activeLanguage={activeLanguage} onBack={() => setMode('home')} />
+        <ChatInterface mode={mode} activeLanguage={activeLanguage} onBack={() => handleModeChange('home')} />
       </main>
     </div>
   )

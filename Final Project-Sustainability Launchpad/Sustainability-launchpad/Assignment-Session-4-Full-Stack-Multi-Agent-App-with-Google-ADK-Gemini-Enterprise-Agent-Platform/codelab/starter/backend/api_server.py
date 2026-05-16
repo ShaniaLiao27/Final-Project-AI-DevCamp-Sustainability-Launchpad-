@@ -24,6 +24,9 @@ AGENT_RESOURCE_NAME = os.environ.get("AGENT_RESOURCE_NAME") or os.environ.get("A
 # Agent name for session management
 AGENT_NAME = "sustainability_master"
 
+# Map frontend session IDs to Vertex AI session IDs
+ACTIVE_SESSIONS = {}
+
 # Try importing local agent as fallback for local dev
 try:
     import sys
@@ -307,13 +310,47 @@ async def chat_endpoint(request: ChatRequest):
         # Prefer remote_agent if available
         if remote_agent:
             user_id = "web_user_001"
-            session = await remote_agent.async_create_session(user_id=user_id)
-            session_id = session['id']
+            
+            # Map the frontend session ID to a Vertex AI session ID to preserve memory
+            is_new_session = False
+            if request.session_id not in ACTIVE_SESSIONS:
+                session = await remote_agent.async_create_session(user_id=user_id)
+                ACTIVE_SESSIONS[request.session_id] = session['id']
+                is_new_session = True
+                
+            vertex_session_id = ACTIVE_SESSIONS[request.session_id]
+            
+            # Map frontend language strictly to enforce Traditional Chinese
+            lang_map = {
+                "中文": "繁體中文 (Traditional Chinese)",
+                "日本語": "Japanese (日本語)",
+                "Español": "Spanish (Español)",
+                "EN": "English"
+            }
+            lang_hint = lang_map.get(request.language, request.language)
+            
+            # Prepend language and context
+            msg = request.message
+            system_prompts = []
+            
+            if request.language != "EN":
+                system_prompts.append(f"CRITICAL: The user interface is set to {lang_hint}. You MUST respond entirely in {lang_hint} (do NOT use Simplified Chinese if Traditional is requested).")
+                
+            if is_new_session:
+                if "learn" in request.session_id:
+                    system_prompts.append("CONTEXT: The user just entered 'Learn Mode'. The UI greeted them asking what they want to learn about sustainability. Their following message is their answer.")
+                elif "generate" in request.session_id:
+                    system_prompts.append("CONTEXT: The user just entered 'Generate Mode'. The UI greeted them asking for their company name, industry, location, and employee count. Their following message is their answer to this prompt. Please invoke the MaterialityAdvisorAgent immediately to start the generation process.")
+            
+            if system_prompts:
+                combined_system = " ".join(system_prompts)
+                msg = f"[System Alert: {combined_system}]\n\nUser Message: {msg}"
+                
             reply_text = ""
             async for event in remote_agent.async_stream_query(
                 user_id=user_id,
-                session_id=session_id,
-                message=request.message
+                session_id=vertex_session_id,
+                message=msg
             ):
                 if isinstance(event, dict):
                     content = event.get("content") or {}

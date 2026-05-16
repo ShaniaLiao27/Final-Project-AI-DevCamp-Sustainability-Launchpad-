@@ -126,9 +126,9 @@ MIT — fork, modify, build your own sustainability tool for your country.
 
 <img width="1134" height="895" alt="web sample 0-1" src="https://github.com/user-attachments/assets/aaf46cd4-49db-4681-bcf4-225e6e05c442" />
 
-<img width="1134" height="977" alt="web sample 1" src="https://github.com/user-attachments/assets/671d1c86-681a-4731-b679-7503a0cfa27f" />
-
 | Learn Mode | 
+
+<img width="1134" height="977" alt="web sample 1" src="https://github.com/user-attachments/assets/671d1c86-681a-4731-b679-7503a0cfa27f" />
 
 <img width="1134" height="923" alt="web sample 1-1" src="https://github.com/user-attachments/assets/0e081d72-72f2-42f8-96be-48b1779ce050" />
 

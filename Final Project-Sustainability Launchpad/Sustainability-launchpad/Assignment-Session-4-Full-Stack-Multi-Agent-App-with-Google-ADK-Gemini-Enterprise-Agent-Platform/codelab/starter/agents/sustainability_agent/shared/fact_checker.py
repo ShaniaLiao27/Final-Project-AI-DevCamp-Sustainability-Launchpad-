@@ -1,7 +1,26 @@
 """FactCheckerAgent — verifies factual claims using authoritative sources."""
 
 from google.adk.agents import LlmAgent
-from google.adk.tools import google_search
+import os
+
+# Set up MCP connection
+try:
+    from google.adk.tools.mcp_tool import McpToolset, StdioConnectionParams
+    from mcp import StdioServerParameters
+    
+    mcp_script_path = os.path.join(os.path.dirname(__file__), "..", "mcp_server.py")
+    mcp_toolset = McpToolset(
+        connection_params=StdioConnectionParams(
+            server_params=StdioServerParameters(
+                command="python",
+                args=[mcp_script_path]
+            )
+        )
+    )
+    tools_list = [mcp_toolset]
+except Exception as e:
+    print(f"Warning: MCP integration not fully initialized: {e}")
+    tools_list = []
 
 FACT_CHECKER_INSTRUCTION = """You are a sustainability fact-checker.
 
@@ -53,5 +72,5 @@ fact_checker_agent = LlmAgent(
     model="gemini-2.5-flash",
     description="Verifies factual claims in sustainability content using authoritative global and regional sources.",
     instruction=FACT_CHECKER_INSTRUCTION,
-    tools=[google_search],
+    tools=tools_list,
 )

@@ -1,7 +1,6 @@
 """MaterialityAdvisorAgent — identifies most material sustainability issues for an SME."""
 
 from google.adk.agents import LlmAgent
-from google.adk.tools import google_search
 
 MATERIALITY_INSTRUCTION = """You are a materiality assessor for SMEs globally.
 
@@ -57,5 +56,4 @@ materiality_advisor_agent = LlmAgent(
     model="gemini-2.5-flash",
     description="Identifies the top 5 most material sustainability issues for any SME based on industry, size, and country-specific frameworks.",
     instruction=MATERIALITY_INSTRUCTION,
-    tools=[google_search],
 )

@@ -1,7 +1,6 @@
 """ConceptExplainerAgent — explains sustainability concepts in plain language."""
 
 from google.adk.agents import LlmAgent
-from google.adk.tools import google_search
 
 CONCEPT_EXPLAINER_INSTRUCTION = """You are a sustainability concept explainer for SME owners
 and sustainability newcomers worldwide.
@@ -50,5 +49,4 @@ concept_explainer_agent = LlmAgent(
     model="gemini-2.5-flash",
     description="Explains sustainability concepts in plain language, in the user's language, for SME owners worldwide.",
     instruction=CONCEPT_EXPLAINER_INSTRUCTION,
-    tools=[google_search],
 )

@@ -32,7 +32,7 @@ from google.adk.plugins.logging_plugin import LoggingPlugin
 project_root = Path(__file__).parent.parent
 sys.path.insert(0, str(project_root))
 
-from agents.orchestrator_agent.agent import root_agent
+from agents.sustainability_agent import root_agent
 
 # Load environment variables from .env file
 load_dotenv()
@@ -44,7 +44,7 @@ load_dotenv()
 PROJECT_ID = os.getenv("GOOGLE_CLOUD_PROJECT", "project-ddc15d84-7238-4571-a39")
 LOCATION = os.getenv("GOOGLE_CLOUD_LOCATION", "us-central1")
 STAGING_BUCKET = os.getenv("GOOGLE_CLOUD_STORAGE_BUCKET", "gs://content-creation-studio-adk-staging")
-DISPLAY_NAME = "content-creation-multiagentsystem"
+DISPLAY_NAME = "sustainability-launchpad"
 
 # For Express Mode (no GCP project required):
 # API_KEY = "your-express-mode-api-key"

@@ -304,27 +304,8 @@ async def chat_endpoint(request: ChatRequest):
         raise HTTPException(status_code=503, detail="No agent available.")
         
     try:
-        # For simplicity in local testing, we'll just run the local agent directly
-        # and extract the text response. (Using remote_agent requires async_stream_query)
-        if local_agent:
-            # Inject language hint into the message implicitly if we want
-            msg = f"{request.message}"
-            # ADK agent invocation:
-            response = local_agent(msg)
-            
-            # The response is usually a RunContext or an Event.
-            # Let's just grab the text from the response safely.
-            reply_text = ""
-            if hasattr(response, "text"):
-                reply_text = response.text
-            elif isinstance(response, dict) and "text" in response:
-                reply_text = response["text"]
-            else:
-                reply_text = str(response)
-                
-            return {"reply": reply_text}
-        else:
-            # Use remote agent (fallback logic)
+        # Prefer remote_agent if available
+        if remote_agent:
             user_id = "web_user_001"
             session = await remote_agent.async_create_session(user_id=user_id)
             session_id = session['id']
@@ -334,9 +315,35 @@ async def chat_endpoint(request: ChatRequest):
                 session_id=session_id,
                 message=request.message
             ):
-                if isinstance(event, dict) and "text" in event:
-                    reply_text += event["text"]
+                if isinstance(event, dict):
+                    content = event.get("content") or {}
+                    if isinstance(content, dict):
+                        for part in content.get("parts", []):
+                            if isinstance(part, dict) and part.get("text"):
+                                reply_text += part["text"]
+                    elif "text" in event:
+                        reply_text += event["text"]
+                elif hasattr(event, "content"):
+                    content = event.content
+                    if content and hasattr(content, "parts"):
+                        for part in content.parts:
+                            if getattr(part, "text", None):
+                                reply_text += part.text
             return {"reply": reply_text}
+            
+        # Fallback to local_agent (using raw google.genai since LlmAgent is not directly callable)
+        elif local_agent:
+            try:
+                from google import genai
+                client = genai.Client()
+                response = client.models.generate_content(
+                    model='gemini-2.5-flash',
+                    contents=request.message,
+                )
+                return {"reply": response.text}
+            except Exception as e:
+                print(f"GenAI fallback failed: {e}")
+                return {"reply": "Sorry, local agent is currently misconfigured."}
             
     except Exception as e:
         print(f"Chat error: {e}")

@@ -14,11 +14,8 @@ PROJECT_ROOT="$(dirname "$SCRIPT_DIR")"
 ENV_FILE="$PROJECT_ROOT/.env"
 
 if [ -f "$ENV_FILE" ]; then
-    echo "Loading environment variables from $ENV_FILE..."
-    set -a
-    # shellcheck source=/dev/null
-    source <(grep -v '^\s*#' "$ENV_FILE" | grep -v '^\s*$' | sed 's/\s*#.*//')
-    set +a
+    # shellcheck disable=SC2046
+    export $(grep -v '^[[:space:]]*#' "$ENV_FILE" | grep -v '^[[:space:]]*$' | sed 's/[[:space:]]*#.*//' | xargs)
 else
     echo "Error: .env file not found at $ENV_FILE"
     exit 1

@@ -22,7 +22,19 @@ from vertexai import agent_engines
 AGENT_RESOURCE_NAME = os.environ.get("AGENT_RESOURCE_NAME") or os.environ.get("AGENT_ENGINE_RESOURCE_NAME")
 
 # Agent name for session management
-AGENT_NAME = "orchestrator_agent"
+AGENT_NAME = "sustainability_master"
+
+# Map frontend session IDs to Vertex AI session IDs
+ACTIVE_SESSIONS = {}
+
+# Try importing local agent as fallback for local dev
+try:
+    import sys
+    sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
+    from agents.sustainability_agent import root_agent as local_agent
+except Exception as e:
+    print(f"Warning: Failed to load local agent: {e}")
+    local_agent = None
 
 # Map sub-agent names to frontend channel names.
 # With sub_agents, inner events propagate and include the author field.
@@ -91,8 +103,8 @@ async def health():
         "status": "ok",
         "message": "Content Creation Studio API is running",
         "agent": AGENT_NAME,
-        "agent_resource": AGENT_RESOURCE_NAME if AGENT_RESOURCE_NAME else "Not configured",
-        "agent_connected": remote_agent is not None
+        "agent_resource": AGENT_RESOURCE_NAME if AGENT_RESOURCE_NAME else "Local Fallback",
+        "agent_connected": remote_agent is not None or local_agent is not None
     }
 
 
@@ -281,6 +293,98 @@ async def analyze_text(request: AnalyzeRequest):
         if "429" in error_message or "RESOURCE_EXHAUSTED" in error_message:
             raise HTTPException(status_code=429, detail="The AI service is temporarily busy (quota exhausted). Please try again later.")
         raise HTTPException(status_code=500, detail="An error occurred during analysis. Please try again.")
+
+
+class ChatRequest(BaseModel):
+    message: str
+    session_id: str
+    language: str = "EN"
+
+@app.post("/api/chat")
+async def chat_endpoint(request: ChatRequest):
+    """Simple chat endpoint for local frontend testing."""
+    if not remote_agent and not local_agent:
+        raise HTTPException(status_code=503, detail="No agent available.")
+        
+    try:
+        # Prefer remote_agent if available
+        if remote_agent:
+            user_id = "web_user_001"
+            
+            # Map the frontend session ID to a Vertex AI session ID to preserve memory
+            is_new_session = False
+            if request.session_id not in ACTIVE_SESSIONS:
+                session = await remote_agent.async_create_session(user_id=user_id)
+                ACTIVE_SESSIONS[request.session_id] = session['id']
+                is_new_session = True
+                
+            vertex_session_id = ACTIVE_SESSIONS[request.session_id]
+            
+            # Map frontend language strictly to enforce Traditional Chinese
+            lang_map = {
+                "中文": "繁體中文 (Traditional Chinese)",
+                "日本語": "Japanese (日本語)",
+                "Español": "Spanish (Español)",
+                "EN": "English"
+            }
+            lang_hint = lang_map.get(request.language, request.language)
+            
+            # Prepend language and context
+            msg = request.message
+            system_prompts = []
+            
+            if request.language != "EN":
+                system_prompts.append(f"CRITICAL: The user interface is set to {lang_hint}. You MUST respond entirely in {lang_hint} (do NOT use Simplified Chinese if Traditional is requested).")
+                
+            if is_new_session:
+                if "learn" in request.session_id:
+                    system_prompts.append("CONTEXT: The user just entered 'Learn Mode'. The UI greeted them asking what they want to learn about sustainability. Their following message is their answer.")
+                elif "generate" in request.session_id:
+                    system_prompts.append("CONTEXT: The user just entered 'Generate Mode'. The UI greeted them asking for their company name, industry, location, and employee count. Their following message is their answer to this prompt. Please invoke the MaterialityAdvisorAgent immediately to start the generation process.")
+            
+            if system_prompts:
+                combined_system = " ".join(system_prompts)
+                msg = f"[System Alert: {combined_system}]\n\nUser Message: {msg}"
+                
+            reply_text = ""
+            async for event in remote_agent.async_stream_query(
+                user_id=user_id,
+                session_id=vertex_session_id,
+                message=msg
+            ):
+                if isinstance(event, dict):
+                    content = event.get("content") or {}
+                    if isinstance(content, dict):
+                        for part in content.get("parts", []):
+                            if isinstance(part, dict) and part.get("text"):
+                                reply_text += part["text"]
+                    elif "text" in event:
+                        reply_text += event["text"]
+                elif hasattr(event, "content"):
+                    content = event.content
+                    if content and hasattr(content, "parts"):
+                        for part in content.parts:
+                            if getattr(part, "text", None):
+                                reply_text += part.text
+            return {"reply": reply_text}
+            
+        # Fallback to local_agent (using raw google.genai since LlmAgent is not directly callable)
+        elif local_agent:
+            try:
+                from google import genai
+                client = genai.Client()
+                response = client.models.generate_content(
+                    model='gemini-2.5-flash',
+                    contents=request.message,
+                )
+                return {"reply": response.text}
+            except Exception as e:
+                print(f"GenAI fallback failed: {e}")
+                return {"reply": "Sorry, local agent is currently misconfigured."}
+            
+    except Exception as e:
+        print(f"Chat error: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
 
 
 if __name__ == "__main__":

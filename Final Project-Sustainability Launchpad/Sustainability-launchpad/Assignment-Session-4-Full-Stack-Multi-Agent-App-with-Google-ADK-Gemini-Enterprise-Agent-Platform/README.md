@@ -23,13 +23,6 @@ Works in **English, 繁體中文, 日本語, Español** — agents auto-detect y
 
 ---
 
-## 🖼 Screenshots
-
-| Homepage | Learn Mode | Generate Mode |
-| --- | --- | --- |
-| ![](docs/screenshots/01-homepage.png) | ![](docs/screenshots/02-learn-mode.png) | ![](docs/screenshots/04-generate-mode.png) |
-
----
 
 ## 🏗 Architecture
 
@@ -111,7 +104,8 @@ Personalized into the sustainability domain as my Final Project.
 
 MIT — fork, modify, build your own sustainability tool for your country.
 
-# Screenshots
+## 🖼 Screenshots
+
 # ADK Web Sample
 <img width="1322" height="901" alt="adk sample" src="https://github.com/user-attachments/assets/ca2e1e01-f2b5-4a09-975e-d78156bd4ab9" />
 
@@ -125,17 +119,22 @@ MIT — fork, modify, build your own sustainability tool for your country.
 
 <img width="1322" height="927" alt="adk web sample 4-1" src="https://github.com/user-attachments/assets/a0a98bc3-98cf-4f32-8fb0-393df3b73c2c" />
 
-# Web Sample<img width="1134" height="977" alt="web sample 1" src="https://github.com/user-attachments/assets/671d1c86-681a-4731-b679-7503a0cfa27f" />
+# Web Sample
+| Homepage | 
 
 <img width="1134" height="899" alt="web sample 0" src="https://github.com/user-attachments/assets/399135df-c167-48d4-bec9-ca40bb9d0480" />
 
 <img width="1134" height="895" alt="web sample 0-1" src="https://github.com/user-attachments/assets/aaf46cd4-49db-4681-bcf4-225e6e05c442" />
 
-![Uploading web sample 1.jpg…]()
+<img width="1134" height="977" alt="web sample 1" src="https://github.com/user-attachments/assets/671d1c86-681a-4731-b679-7503a0cfa27f" />
+
+| Learn Mode | 
 
 <img width="1134" height="923" alt="web sample 1-1" src="https://github.com/user-attachments/assets/0e081d72-72f2-42f8-96be-48b1779ce050" />
 
 <img width="1134" height="926" alt="web sample 1-2" src="https://github.com/user-attachments/assets/f4078d9a-9c65-4ad7-af24-220b8d7ef26f" />
+
+| Generate Mode | 
 
 <img width="1123" height="828" alt="web sample 2" src="https://github.com/user-attachments/assets/79d82b6c-767a-496c-ba5b-0a76a927fcb2" />
 

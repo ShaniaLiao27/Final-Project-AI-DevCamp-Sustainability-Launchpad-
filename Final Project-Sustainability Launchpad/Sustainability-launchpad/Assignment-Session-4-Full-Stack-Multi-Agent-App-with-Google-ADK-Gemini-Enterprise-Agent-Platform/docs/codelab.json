@@ -1,0 +1,32 @@
+{
+  "environment": "web",
+  "format": "html",
+  "prefix": "https://storage.googleapis.com",
+  "mainga": "UA-49880327-14",
+  "updated": "2026-04-30T15:57:50+01:00",
+  "id": "content-creation-studio-adk",
+  "duration": 0,
+  "title": "Build a Full-Stack Multi-Agent App with Google ADK \u0026 Gemini Enterprise Agent Platform",
+  "authors": "Saoussen Chaabnia",
+  "summary": "Build and deploy a full-stack multi-agent application with Google ADK - a React + FastAPI app on Cloud Run backed by a team of Gemini-powered agents on Gemini Enterprise Agent Runtime (formerly Vertex AI Agent Engine), covering SequentialAgent, LoopAgent, ParallelAgent, callbacks, artifacts, and memory.",
+  "source": "codelab.md",
+  "theme": "",
+  "status": [
+    "published"
+  ],
+  "category": [
+    "adk",
+    "multi-agent",
+    "gemini",
+    "vertex-ai"
+  ],
+  "tags": [
+    "adk",
+    "gemini",
+    "multi-agent",
+    "python",
+    "vertex-ai"
+  ],
+  "feedback": "https://github.com/Saoussen-CH/google-adk-multi-agent-design-consideration-workshop/issues",
+  "url": "content-creation-studio-adk"
+}

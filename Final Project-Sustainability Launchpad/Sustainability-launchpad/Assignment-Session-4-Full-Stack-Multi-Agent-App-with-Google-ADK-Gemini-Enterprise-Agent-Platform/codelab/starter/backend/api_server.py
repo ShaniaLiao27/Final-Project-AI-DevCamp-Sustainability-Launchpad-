@@ -22,7 +22,16 @@ from vertexai import agent_engines
 AGENT_RESOURCE_NAME = os.environ.get("AGENT_RESOURCE_NAME") or os.environ.get("AGENT_ENGINE_RESOURCE_NAME")
 
 # Agent name for session management
-AGENT_NAME = "orchestrator_agent"
+AGENT_NAME = "sustainability_master"
+
+# Try importing local agent as fallback for local dev
+try:
+    import sys
+    sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
+    from agents.sustainability_agent import root_agent as local_agent
+except Exception as e:
+    print(f"Warning: Failed to load local agent: {e}")
+    local_agent = None
 
 # Map sub-agent names to frontend channel names.
 # With sub_agents, inner events propagate and include the author field.
@@ -91,8 +100,8 @@ async def health():
         "status": "ok",
         "message": "Content Creation Studio API is running",
         "agent": AGENT_NAME,
-        "agent_resource": AGENT_RESOURCE_NAME if AGENT_RESOURCE_NAME else "Not configured",
-        "agent_connected": remote_agent is not None
+        "agent_resource": AGENT_RESOURCE_NAME if AGENT_RESOURCE_NAME else "Local Fallback",
+        "agent_connected": remote_agent is not None or local_agent is not None
     }
 
 
@@ -281,6 +290,57 @@ async def analyze_text(request: AnalyzeRequest):
         if "429" in error_message or "RESOURCE_EXHAUSTED" in error_message:
             raise HTTPException(status_code=429, detail="The AI service is temporarily busy (quota exhausted). Please try again later.")
         raise HTTPException(status_code=500, detail="An error occurred during analysis. Please try again.")
+
+
+class ChatRequest(BaseModel):
+    message: str
+    session_id: str
+    language: str = "EN"
+
+@app.post("/api/chat")
+async def chat_endpoint(request: ChatRequest):
+    """Simple chat endpoint for local frontend testing."""
+    if not remote_agent and not local_agent:
+        raise HTTPException(status_code=503, detail="No agent available.")
+        
+    try:
+        # For simplicity in local testing, we'll just run the local agent directly
+        # and extract the text response. (Using remote_agent requires async_stream_query)
+        if local_agent:
+            # Inject language hint into the message implicitly if we want
+            msg = f"{request.message}"
+            # ADK agent invocation:
+            response = local_agent(msg)
+            
+            # The response is usually a RunContext or an Event.
+            # Let's just grab the text from the response safely.
+            reply_text = ""
+            if hasattr(response, "text"):
+                reply_text = response.text
+            elif isinstance(response, dict) and "text" in response:
+                reply_text = response["text"]
+            else:
+                reply_text = str(response)
+                
+            return {"reply": reply_text}
+        else:
+            # Use remote agent (fallback logic)
+            user_id = "web_user_001"
+            session = await remote_agent.async_create_session(user_id=user_id)
+            session_id = session['id']
+            reply_text = ""
+            async for event in remote_agent.async_stream_query(
+                user_id=user_id,
+                session_id=session_id,
+                message=request.message
+            ):
+                if isinstance(event, dict) and "text" in event:
+                    reply_text += event["text"]
+            return {"reply": reply_text}
+            
+    except Exception as e:
+        print(f"Chat error: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
 
 
 if __name__ == "__main__":

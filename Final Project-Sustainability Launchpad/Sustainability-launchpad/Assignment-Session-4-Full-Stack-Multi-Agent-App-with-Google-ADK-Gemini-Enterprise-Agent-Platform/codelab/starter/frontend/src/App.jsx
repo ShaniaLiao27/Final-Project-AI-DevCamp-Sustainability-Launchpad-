@@ -1,125 +1,176 @@
-import React, { useState } from 'react'
-import ContentForm from './components/ContentForm'
-import ContentDisplay from './components/ContentDisplay'
-import ProgressIndicator from './components/ProgressIndicator'
-import TextAnalyzer from './components/TextAnalyzer'
+import React, { useState, useRef, useEffect } from 'react'
 import './styles/App.css'
 
+const ChatInterface = ({ mode, activeLanguage, onBack }) => {
+  const [messages, setMessages] = useState([
+    { 
+      role: 'model', 
+      content: mode === 'learn' 
+        ? '🎓 Welcome to Learn Mode! What would you like to know about sustainability?' 
+        : '✍️ Welcome to Generate Mode! Please tell me your company name, industry, location, and number of employees so we can draft your sustainability statement.' 
+    }
+  ]);
+  const [input, setInput] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+  const messagesEndRef = useRef(null);
+
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  };
+
+  useEffect(() => {
+    scrollToBottom();
+  }, [messages]);
+
+  const sendMessage = async () => {
+    if (!input.trim()) return;
+    const userMessage = { role: 'user', content: input };
+    setMessages(prev => [...prev, userMessage]);
+    setInput('');
+    setIsLoading(true);
+
+    try {
+      const response = await fetch('http://localhost:8000/api/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ 
+          message: input, 
+          session_id: `session_${mode}`,
+          language: activeLanguage
+        })
+      });
+      
+      const data = await response.json();
+      setMessages(prev => [...prev, { role: 'model', content: data.reply || 'No response.' }]);
+    } catch (e) {
+      setMessages(prev => [...prev, { role: 'model', content: '❌ Connection error to backend API.' }]);
+    }
+    setIsLoading(false);
+  };
+
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', height: '100%', minHeight: '600px', backgroundColor: 'var(--surface-color)', borderRadius: '12px', boxShadow: 'var(--shadow-md)', overflow: 'hidden' }}>
+      <div style={{ flex: 1, padding: '1.5rem', overflowY: 'auto', backgroundColor: '#f9fafb' }}>
+        {messages.map((msg, idx) => (
+          <div key={idx} style={{ 
+            marginBottom: '1rem', 
+            textAlign: msg.role === 'user' ? 'right' : 'left',
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: msg.role === 'user' ? 'flex-end' : 'flex-start'
+          }}>
+            <div style={{
+              backgroundColor: msg.role === 'user' ? 'var(--primary-color)' : 'white',
+              color: msg.role === 'user' ? 'white' : 'var(--text-primary)',
+              padding: '1rem 1.25rem',
+              borderRadius: '12px',
+              borderBottomRightRadius: msg.role === 'user' ? '2px' : '12px',
+              borderBottomLeftRadius: msg.role === 'model' ? '2px' : '12px',
+              maxWidth: '80%',
+              boxShadow: 'var(--shadow-sm)',
+              whiteSpace: 'pre-wrap',
+              border: msg.role === 'model' ? '1px solid var(--border-color)' : 'none'
+            }}>
+              {msg.content}
+            </div>
+          </div>
+        ))}
+        {isLoading && (
+          <div style={{ textAlign: 'left', marginBottom: '1rem' }}>
+            <div style={{ backgroundColor: 'white', padding: '1rem', borderRadius: '12px', maxWidth: '80%', display: 'inline-block', color: 'var(--text-secondary)' }}>
+              typing...
+            </div>
+          </div>
+        )}
+        <div ref={messagesEndRef} />
+      </div>
+      
+      <div style={{ padding: '1.5rem', backgroundColor: 'white', borderTop: '1px solid var(--border-color)' }}>
+        <div style={{ display: 'flex', gap: '1rem' }}>
+          <input 
+            type="text" 
+            value={input}
+            onChange={(e) => setInput(e.target.value)}
+            onKeyPress={(e) => e.key === 'Enter' && sendMessage()}
+            placeholder="Type your message..."
+            disabled={isLoading}
+            style={{
+              flex: 1,
+              padding: '1rem',
+              borderRadius: '8px',
+              border: '2px solid var(--border-color)',
+              fontSize: '1rem',
+              outline: 'none'
+            }}
+          />
+          <button 
+            onClick={sendMessage}
+            disabled={isLoading}
+            style={{
+              padding: '0 2rem',
+              backgroundColor: 'var(--primary-color)',
+              color: 'white',
+              border: 'none',
+              borderRadius: '8px',
+              fontSize: '1rem',
+              fontWeight: '600',
+              cursor: isLoading ? 'not-allowed' : 'pointer',
+              opacity: isLoading ? 0.7 : 1
+            }}
+          >
+            Send
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function App() {
-  const [mode, setMode] = useState('home') // 'home', 'learn', 'generate'
-  const [activeLanguage, setActiveLanguage] = useState('EN')
+  const [mode, setMode] = useState('home'); // 'home', 'learn', 'generate'
+  const [activeLanguage, setActiveLanguage] = useState('EN');
 
-  // Existing states for the app
-  const [activeTab, setActiveTab] = useState('create')
-  const [isGenerating, setIsGenerating] = useState(false)
-  const [progress, setProgress] = useState([])
-  const [contentPieces, setContentPieces] = useState({})
-  const [error, setError] = useState(null)
-  const [lastFormData, setLastFormData] = useState(null)
+  const textMap = {
+    'EN': {
+      title: '🌱 Sustainability Launchpad',
+      tagline: 'From "What is ESG?" to your first sustainability report — in 20 minutes.',
+      learnBtn: '🎓 Learn Mode',
+      generateBtn: '✍️ Generate Mode',
+      footer: 'Built with Google ADK · GDG London AI DevCamp 2026'
+    },
+    '中文': {
+      title: '🌱 永續發展啟動台',
+      tagline: '從「什麼是 ESG？」到你的第一份永續報告 — 只要 20 分鐘。',
+      learnBtn: '🎓 學習模式',
+      generateBtn: '✍️ 生成模式',
+      footer: '使用 Google ADK 打造 · GDG London AI DevCamp 2026'
+    },
+    '日本語': {
+      title: '🌱 サステナビリティ・ローンチパッド',
+      tagline: '「ESGとは？」から最初のサステナビリティ・レポート作成まで — 20分で。',
+      learnBtn: '🎓 学習モード',
+      generateBtn: '✍️ 生成モード',
+      footer: 'Google ADK で構築 · GDG London AI DevCamp 2026'
+    },
+    'Español': {
+      title: '🌱 Plataforma de Sostenibilidad',
+      tagline: 'De "¿Qué es ESG?" a su primer informe de sostenibilidad en 20 minutos.',
+      learnBtn: '🎓 Modo Aprendizaje',
+      generateBtn: '✍️ Modo Generación',
+      footer: 'Construido con Google ADK · GDG London AI DevCamp 2026'
+    }
+  };
 
-  const handleContentGeneration = (formData) => {
-    setLastFormData(formData)
-    setIsGenerating(true)
-    setProgress([])
-    setContentPieces({})
-    setError(null)
-
-    const apiUrl = '/api/create-content'
-
-    fetch(apiUrl, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        topic: formData.topic,
-        target_audience: formData.targetAudience,
-        tone: formData.tone,
-        keywords: formData.keywords,
-        language: activeLanguage // Send selected language
-      }),
-    })
-      .then(response => {
-        const reader = response.body.getReader()
-        const decoder = new TextDecoder()
-        let buffer = ''
-
-        const readStream = () => {
-          reader.read().then(({ done, value }) => {
-            if (done) {
-              setIsGenerating(false)
-              return
-            }
-
-            buffer += decoder.decode(value, { stream: true })
-            const lines = buffer.split('\n')
-            buffer = lines.pop()
-
-            lines.forEach(line => {
-              if (line.startsWith('data: ')) {
-                try {
-                  const data = JSON.parse(line.substring(6))
-
-                  if (data.type === 'status') {
-                    setProgress(prev => [...prev, { type: 'info', message: data.message }])
-                  } else if (data.type === 'content_piece') {
-                    setContentPieces(prev => ({
-                      ...prev,
-                      [data.channel]: (prev[data.channel] || '') + data.content
-                    }))
-                  } else if (data.type === 'event') {
-                    setProgress(prev => [...prev, {
-                      type: 'event',
-                      author: data.author,
-                      preview: data.content_preview
-                    }])
-                  } else if (data.type === 'complete') {
-                    setIsGenerating(false)
-                  } else if (data.type === 'error') {
-                    setError({ message: data.message, retryable: data.retryable })
-                    setIsGenerating(false)
-                  }
-                } catch (e) {
-                  console.error('Error parsing SSE data:', e)
-                }
-              }
-            })
-
-            readStream()
-          })
-        }
-
-        readStream()
-      })
-      .catch(err => {
-        setError({ message: 'Could not connect to the server. Please check if the backend is running.', retryable: true })
-        setIsGenerating(false)
-      })
-  }
-
-  const hasContent = Object.keys(contentPieces).length > 0
+  const t = textMap[activeLanguage] || textMap['EN'];
 
   if (mode === 'home') {
     return (
       <div className="app" style={{ backgroundColor: 'var(--bg-color)' }}>
-        <header style={{ 
-          display: 'flex', 
-          justifyContent: 'flex-end', 
-          padding: '1rem 2rem',
-          backgroundColor: 'transparent',
-          boxShadow: 'none'
-        }}>
+        <header style={{ display: 'flex', justifyContent: 'flex-end', padding: '1rem 2rem' }}>
           <select 
             value={activeLanguage} 
             onChange={(e) => setActiveLanguage(e.target.value)}
-            style={{
-              padding: '0.5rem 1rem',
-              borderRadius: '8px',
-              border: '2px solid var(--border-color)',
-              fontSize: '1rem',
-              outline: 'none',
-              cursor: 'pointer'
-            }}
+            style={{ padding: '0.5rem 1rem', borderRadius: '8px', border: '2px solid var(--border-color)', fontSize: '1rem' }}
           >
             <option value="EN">EN</option>
             <option value="中文">中文</option>
@@ -128,164 +179,61 @@ function App() {
           </select>
         </header>
 
-        <main style={{
-          flex: 1,
-          display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'center',
-          justifyContent: 'center',
-          padding: '2rem',
-          textAlign: 'center'
-        }}>
+        <main style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '2rem', textAlign: 'center' }}>
           <h1 style={{ fontSize: '3.5rem', fontWeight: '800', color: 'var(--primary-color)', marginBottom: '1rem' }}>
-            🌱 Sustainability Launchpad
+            {t.title}
           </h1>
           <p style={{ fontSize: '1.5rem', color: 'var(--text-secondary)', marginBottom: '3rem', maxWidth: '600px' }}>
-            From "What is ESG?" to your first sustainability report — in 20 minutes.
+            {t.tagline}
           </p>
 
           <div style={{ display: 'flex', gap: '2rem', flexWrap: 'wrap', justifyContent: 'center' }}>
             <button 
               onClick={() => setMode('learn')}
               style={{
-                padding: '1rem 2.5rem',
-                fontSize: '1.25rem',
-                fontWeight: '600',
-                backgroundColor: 'var(--primary-color)',
-                color: 'white',
-                border: 'none',
-                borderRadius: '12px',
-                cursor: 'pointer',
-                transition: 'all 0.3s ease',
-                boxShadow: 'var(--shadow-md)',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '0.5rem'
+                padding: '1rem 2.5rem', fontSize: '1.25rem', fontWeight: '600', backgroundColor: 'var(--primary-color)', color: 'white', border: 'none', borderRadius: '12px', cursor: 'pointer', boxShadow: 'var(--shadow-md)'
               }}
-              onMouseOver={e => e.currentTarget.style.backgroundColor = 'var(--primary-hover)'}
-              onMouseOut={e => e.currentTarget.style.backgroundColor = 'var(--primary-color)'}
             >
-              🎓 Learn Mode
+              {t.learnBtn}
             </button>
 
             <button 
               onClick={() => setMode('generate')}
               style={{
-                padding: '1rem 2.5rem',
-                fontSize: '1.25rem',
-                fontWeight: '600',
-                backgroundColor: 'white',
-                color: 'var(--primary-color)',
-                border: '2px solid var(--primary-color)',
-                borderRadius: '12px',
-                cursor: 'pointer',
-                transition: 'all 0.3s ease',
-                boxShadow: 'var(--shadow-sm)',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '0.5rem'
-              }}
-              onMouseOver={e => {
-                e.currentTarget.style.backgroundColor = 'rgba(46, 125, 50, 0.05)'
-              }}
-              onMouseOut={e => {
-                e.currentTarget.style.backgroundColor = 'white'
+                padding: '1rem 2.5rem', fontSize: '1.25rem', fontWeight: '600', backgroundColor: 'white', color: 'var(--primary-color)', border: '2px solid var(--primary-color)', borderRadius: '12px', cursor: 'pointer', boxShadow: 'var(--shadow-sm)'
               }}
             >
-              ✍️ Generate Mode
+              {t.generateBtn}
             </button>
           </div>
         </main>
 
-        <footer style={{
-          textAlign: 'center',
-          padding: '2rem',
-          color: 'var(--text-secondary)',
-          borderTop: '1px solid var(--border-color)'
-        }}>
-          <p>Built with Google ADK · GDG London AI DevCamp 2026</p>
+        <footer style={{ textAlign: 'center', padding: '2rem', color: 'var(--text-secondary)', borderTop: '1px solid var(--border-color)' }}>
+          <p>{t.footer}</p>
         </footer>
       </div>
     )
   }
 
-  // App Interface (Learn / Generate Modes)
+  // Chat Interface for Learn / Generate Modes
   return (
-    <div className="app">
-      <header className="app-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+    <div className="app" style={{ backgroundColor: 'var(--bg-color)', display: 'flex', flexDirection: 'column', height: '100vh' }}>
+      <header className="app-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '1rem 2rem' }}>
         <div style={{ textAlign: 'left' }}>
-          <h1>🌱 Sustainability Launchpad</h1>
-          <p>{mode === 'learn' ? '🎓 Learn Mode' : '✍️ Generate Mode'}</p>
+          <h1 style={{ fontSize: '1.5rem', margin: 0 }}>{t.title}</h1>
+          <p style={{ margin: 0, opacity: 0.9 }}>{mode === 'learn' ? t.learnBtn : t.generateBtn}</p>
         </div>
-        <div>
-           <button 
-              onClick={() => setMode('home')}
-              style={{
-                padding: '0.5rem 1rem',
-                background: 'rgba(255,255,255,0.2)',
-                color: 'white',
-                border: 'none',
-                borderRadius: '6px',
-                cursor: 'pointer',
-                fontWeight: 'bold'
-              }}
-            >
-              ← Back to Home
-            </button>
-        </div>
+        <button 
+          onClick={() => setMode('home')}
+          style={{ padding: '0.5rem 1rem', background: 'rgba(255,255,255,0.2)', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer', fontWeight: 'bold' }}
+        >
+          ← Back
+        </button>
       </header>
 
-      <main className="app-main">
-        <div className="content-container">
-          <>
-            <div className="form-section">
-              <ContentForm
-                onSubmit={handleContentGeneration}
-                isGenerating={isGenerating}
-              />
-            </div>
-
-            {(isGenerating || progress.length > 0) && (
-              <div className="progress-section">
-                <ProgressIndicator
-                  progress={progress}
-                  isGenerating={isGenerating}
-                />
-              </div>
-            )}
-
-            {error && (
-              <div className="error-section">
-                <div className="error-banner">
-                  <div className="error-icon">&#9888;</div>
-                  <div className="error-body">
-                    <p className="error-text">{error.message}</p>
-                    {error.retryable && lastFormData && (
-                      <button
-                        className="retry-button"
-                        onClick={() => handleContentGeneration(lastFormData)}
-                      >
-                        Try Again
-                      </button>
-                    )}
-                  </div>
-                </div>
-              </div>
-            )}
-
-            {hasContent && (
-              <ContentDisplay
-                contentPieces={contentPieces}
-                isGenerating={isGenerating}
-              />
-            )}
-          </>
-        </div>
+      <main style={{ flex: 1, padding: '2rem', maxWidth: '1000px', margin: '0 auto', width: '100%' }}>
+        <ChatInterface mode={mode} activeLanguage={activeLanguage} onBack={() => setMode('home')} />
       </main>
-
-      <footer className="app-footer">
-        <p>Built with Google ADK · GDG London AI DevCamp 2026</p>
-      </footer>
     </div>
   )
 }

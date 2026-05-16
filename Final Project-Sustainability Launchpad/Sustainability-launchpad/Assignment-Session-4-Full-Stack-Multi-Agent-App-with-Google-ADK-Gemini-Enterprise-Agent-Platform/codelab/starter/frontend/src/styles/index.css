@@ -5,12 +5,13 @@
 }
 
 :root {
-  --primary-color: #2355ec;
-  --primary-hover: #3872ca;
+  --primary-color: #2E7D32;
+  --primary-hover: #1b5e20;
+  --accent-color: #FFC107;
   --success-color: #10b981;
   --error-color: #ef4444;
   --warning-color: #f59e0b;
-  --bg-color: #f9fafb;
+  --bg-color: #ffffff;
   --surface-color: #ffffff;
   --border-color: #e5e7eb;
   --text-primary: #111827;
